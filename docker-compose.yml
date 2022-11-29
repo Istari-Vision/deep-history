@@ -281,20 +281,17 @@ services:
       - "17370:37373"
     volumes:
       - ${DEEP_HISTORY_WORKSPACE}/mainnet/node-0:/data
+      - type: bind
+        source: ./adjust_config.py
+        target: /workspace/adjust_config.py
     working_dir: "/elrond/mainnet/node"
     entrypoint:
-      [
-        "/elrond/mainnet/node/node",
-        "--working-directory=/data",
-        "--log-save",
-        "--log-level=*:DEBUG",
-        "--log-logger-name",
-        "--rest-api-interface=0.0.0.0:8080",
-        "--destination-shard-as-observer=0",
-        "--serialize-snapshots",
-        "--disable-consensus-watchdog",
-        "--validator-key-pem-file=/data/validatorKey.pem"
-      ]
+      ["/bin/sh","-c"]
+    command:
+      - |
+        apt-get -y install python3-pip && pip3 install toml
+        python3.10 /workspace/adjust_config.py --mode=main --file=/elrond/mainnet/node/config/external.toml --elastic-search-url=${ELASTIC_SEARCH_URL}
+        /elrond/mainnet/node/node --working-directory=/data --log-save --log-level=*:DEBUG --log-logger-name --rest-api-interface=0.0.0.0:8080 --destination-shard-as-observer=0 --serialize-snapshots --disable-consensus-watchdog --validator-key-pem-file=/data/validatorKey.pem
     networks:
       deep-history-squad-mainnet:
         ipv4_address: 22.0.0.10
@@ -313,20 +310,17 @@ services:
       - "17371:37373"
     volumes:
       - ${DEEP_HISTORY_WORKSPACE}/mainnet/node-1:/data
+      - type: bind
+        source: ./adjust_config.py
+        target: /workspace/adjust_config.py
     working_dir: "/elrond/mainnet/node"
     entrypoint:
-      [
-        "/elrond/mainnet/node/node",
-        "--working-directory=/data",
-        "--log-save",
-        "--log-level=*:DEBUG",
-        "--log-logger-name",
-        "--rest-api-interface=0.0.0.0:8080",
-        "--destination-shard-as-observer=1",
-        "--serialize-snapshots",
-        "--disable-consensus-watchdog",
-        "--validator-key-pem-file=/data/validatorKey.pem"
-      ]
+      ["/bin/sh","-c"]
+    command:
+      - |
+        apt-get -y install python3-pip && pip3 install toml
+        python3.10 /workspace/adjust_config.py --mode=main --file=/elrond/mainnet/node/config/external.toml --elastic-search-url=${ELASTIC_SEARCH_URL}
+        /elrond/mainnet/node/node --working-directory=/data --log-save --log-level=*:DEBUG --log-logger-name --rest-api-interface=0.0.0.0:8080 --destination-shard-as-observer=1 --serialize-snapshots --disable-consensus-watchdog --validator-key-pem-file=/data/validatorKey.pem
     networks:
       deep-history-squad-mainnet:
         ipv4_address: 22.0.0.11
@@ -345,20 +339,17 @@ services:
       - "17372:37373"
     volumes:
       - ${DEEP_HISTORY_WORKSPACE}/mainnet/node-2:/data
+      - type: bind
+        source: ./adjust_config.py
+        target: /workspace/adjust_config.py
     working_dir: "/elrond/mainnet/node"
     entrypoint:
-      [
-        "/elrond/mainnet/node/node",
-        "--working-directory=/data",
-        "--log-save",
-        "--log-level=*:DEBUG",
-        "--log-logger-name",
-        "--rest-api-interface=0.0.0.0:8080",
-        "--destination-shard-as-observer=2",
-        "--serialize-snapshots",
-        "--disable-consensus-watchdog",
-        "--validator-key-pem-file=/data/validatorKey.pem"
-      ]
+      [ "/bin/sh","-c" ]
+    command:
+      - |
+        apt-get -y install python3-pip && pip3 install toml
+        python3.10 /workspace/adjust_config.py --mode=main --file=/elrond/mainnet/node/config/external.toml --elastic-search-url=${ELASTIC_SEARCH_URL}
+        /elrond/mainnet/node/node --working-directory=/data --log-save --log-level=*:DEBUG --log-logger-name --rest-api-interface=0.0.0.0:8080 --destination-shard-as-observer=2 --serialize-snapshots --disable-consensus-watchdog --validator-key-pem-file=/data/validatorKey.pem
     networks:
       deep-history-squad-mainnet:
         ipv4_address: 22.0.0.12
@@ -377,20 +368,17 @@ services:
       - "17373:37373"
     volumes:
       - ${DEEP_HISTORY_WORKSPACE}/mainnet/node-metachain:/data
+      - type: bind
+        source: ./adjust_config.py
+        target: /workspace/adjust_config.py
     working_dir: "/elrond/mainnet/node"
     entrypoint:
-      [
-        "/elrond/mainnet/node/node",
-        "--working-directory=/data",
-        "--log-save",
-        "--log-level=*:DEBUG",
-        "--log-logger-name",
-        "--rest-api-interface=0.0.0.0:8080",
-        "--destination-shard-as-observer=metachain",
-        "--serialize-snapshots",
-        "--disable-consensus-watchdog",
-        "--validator-key-pem-file=/data/validatorKey.pem"
-      ]
+      [ "/bin/sh","-c" ]
+    command:
+      - |
+        apt-get -y install python3-pip && pip3 install toml
+        python3.10 /workspace/adjust_config.py --mode=main --file=/elrond/mainnet/node/config/external.toml --elastic-search-url=${ELASTIC_SEARCH_URL}
+        /elrond/mainnet/node/node --working-directory=/data --log-save --log-level=*:DEBUG --log-logger-name --rest-api-interface=0.0.0.0:8080 --destination-shard-as-observer=metachain --serialize-snapshots --disable-consensus-watchdog --validator-key-pem-file=/data/validatorKey.pem
     networks:
       deep-history-squad-mainnet:
         ipv4_address: 22.0.0.13
@@ -408,14 +396,17 @@ services:
       - "8080:8080"
     volumes:
       - ${DEEP_HISTORY_WORKSPACE}/mainnet/proxy:/data
+      - type: bind
+        source: ./adjust_config.py
+        target: /workspace/adjust_config.py
     working_dir: "/elrond/mainnet/proxy"
     entrypoint:
-      [
-        "/elrond/mainnet/proxy/proxy",
-        "--working-directory=/data",
-        "--log-save",
-        "--log-level=*:DEBUG"
-      ]
+      [ "/bin/sh","-c" ]
+    command:
+      - |
+        apt-get -y install python3-pip && pip3 install toml
+        python3.10 /workspace/adjust_config.py --mode=proxy --file=/elrond/mainnet/proxy/config/external.toml --elastic-search-url=${ELASTIC_SEARCH_URL}
+        /elrond/mainnet/proxy/proxy --working-directory=/data --log-save --log-level=*:DEBUG
     networks:
       deep-history-squad-mainnet:
         ipv4_address: 22.0.0.100

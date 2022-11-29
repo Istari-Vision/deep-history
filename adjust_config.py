@@ -23,6 +23,7 @@ def main(cli_args: List[str]):
     parser.add_argument("--network")
     parser.add_argument("--api-simultaneous-requests", type=int, default=256)
     parser.add_argument("--api-trie-operations-timeout", type=int, default=60000)
+    parser.add_argument("--elastic-search-url")
 
     parsed_args = parser.parse_args(cli_args)
     mode = parsed_args.mode
@@ -33,61 +34,66 @@ def main(cli_args: List[str]):
 
     data = toml.load(file)
 
-    if mode == MODE_MAIN:
-        data["GeneralSettings"]["StartInEpochEnabled"] = False
-        data["DbLookupExtensions"]["Enabled"] = True
-        data["StateTriesConfig"]["AccountsStatePruningEnabled"] = False
-        data["StoragePruning"]["ObserverCleanOldEpochsData"] = False
-        data["StoragePruning"]["AccountsTrieCleanOldEpochsData"] = False
-        data["Antiflood"]["WebServer"]["SimultaneousRequests"] = api_simultaneous_requests
-        data["Antiflood"]["WebServer"]["TrieOperationsDeadlineMilliseconds"] = api_trie_operations_timeout
-    elif mode == MODE_PREFS:
-        data["Preferences"]["FullArchive"] = True
-    elif mode == MODE_PROXY:
-        del data["FullHistoryNodes"]
-
-        if network == "devnet":
-            data["Observers"] = [
-                {
-                    "ShardId": 0,
-                    "Address": "http://23.0.0.10:8080"
-                },
-                {
-                    "ShardId": 1,
-                    "Address": "http://23.0.0.11:8080"
-                },
-                {
-                    "ShardId": 2,
-                    "Address": "http://23.0.0.12:8080"
-                },
-                {
-                    "ShardId": 4294967295,
-                    "Address": "http://23.0.0.13:8080"
-                },
-            ]
-        elif network == "mainnet":
-            data["Observers"] = [
-                {
-                    "ShardId": 0,
-                    "Address": "http://22.0.0.10:8080"
-                },
-                {
-                    "ShardId": 1,
-                    "Address": "http://22.0.0.11:8080"
-                },
-                {
-                    "ShardId": 2,
-                    "Address": "http://22.0.0.12:8080"
-                },
-                {
-                    "ShardId": 4294967295,
-                    "Address": "http://22.0.0.13:8080"
-                },
-            ]
-        else:
-            raise Exception(f"Unknown network: {network}")
+    if parsed_args.elastic_search_url:
+        data["ElasticSearchConnector"]["Enabled"] = True
+        data["ElasticSearchConnector"]["URL"] = parsed_args.elastic_search_url
+        print(f"Adjusted elastic search configuration {parsed_args.elastic_search_url}")
     else:
-        raise Exception(f"Unknown mode: {mode}")
+        if mode == MODE_MAIN:
+            data["GeneralSettings"]["StartInEpochEnabled"] = False
+            data["DbLookupExtensions"]["Enabled"] = True
+            data["StateTriesConfig"]["AccountsStatePruningEnabled"] = False
+            data["StoragePruning"]["ObserverCleanOldEpochsData"] = False
+            data["StoragePruning"]["AccountsTrieCleanOldEpochsData"] = False
+            data["Antiflood"]["WebServer"]["SimultaneousRequests"] = api_simultaneous_requests
+            data["Antiflood"]["WebServer"]["TrieOperationsDeadlineMilliseconds"] = api_trie_operations_timeout
+        elif mode == MODE_PREFS:
+            data["Preferences"]["FullArchive"] = True
+        elif mode == MODE_PROXY:
+            del data["FullHistoryNodes"]
+
+            if network == "devnet":
+                data["Observers"] = [
+                    {
+                        "ShardId": 0,
+                        "Address": "http://23.0.0.10:8080"
+                    },
+                    {
+                        "ShardId": 1,
+                        "Address": "http://23.0.0.11:8080"
+                    },
+                    {
+                        "ShardId": 2,
+                        "Address": "http://23.0.0.12:8080"
+                    },
+                    {
+                        "ShardId": 4294967295,
+                        "Address": "http://23.0.0.13:8080"
+                    },
+                ]
+            elif network == "mainnet":
+                data["Observers"] = [
+                    {
+                        "ShardId": 0,
+                        "Address": "http://22.0.0.10:8080"
+                    },
+                    {
+                        "ShardId": 1,
+                        "Address": "http://22.0.0.11:8080"
+                    },
+                    {
+                        "ShardId": 2,
+                        "Address": "http://22.0.0.12:8080"
+                    },
+                    {
+                        "ShardId": 4294967295,
+                        "Address": "http://22.0.0.13:8080"
+                    },
+                ]
+            else:
+                raise Exception(f"Unknown network: {network}")
+        else:
+            raise Exception(f"Unknown mode: {mode}")
 
     with open(file, "w") as f:
         toml.dump(data, f)
